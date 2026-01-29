@@ -86,6 +86,7 @@ if (args) {
         }
 
         let proxies = {};
+        let servers = [];
 
         for (let onvifConfig of config.onvif) {
             let server = onvifServer.createServer(onvifConfig, logger);
@@ -95,12 +96,13 @@ if (args) {
                 server.startDiscovery();
                 if (args.debug)
                     server.enableDebugOutput();
+                servers.push(server);
                 logger.info('  Started!');
                 logger.info('');
 
                 if (!proxies[onvifConfig.target.hostname])
                     proxies[onvifConfig.target.hostname] = {}
-                
+
                 if (onvifConfig.ports.rtsp && onvifConfig.target.ports.rtsp)
                     proxies[onvifConfig.target.hostname][onvifConfig.ports.rtsp] = onvifConfig.target.ports.rtsp;
                 if (onvifConfig.ports.snapshot && onvifConfig.target.ports.snapshot)
@@ -119,6 +121,21 @@ if (args) {
                 logger.info('');
             }
         }
+
+        // Graceful shutdown on SIGTERM/SIGINT (important for Docker)
+        const gracefulShutdown = async (signal) => {
+            logger.info(`Received ${signal}, shutting down gracefully...`);
+
+            // Shutdown all ONVIF servers
+            const shutdownPromises = servers.map(server => server.shutdown());
+            await Promise.all(shutdownPromises);
+
+            logger.info('All servers shut down successfully');
+            process.exit(0);
+        };
+
+        process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+        process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
     } else {
         logger.error('Please specifiy a config filename!');
