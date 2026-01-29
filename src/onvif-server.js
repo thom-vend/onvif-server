@@ -358,7 +358,8 @@ class OnvifServer {
     }
 
     startServer() {
-        this.server = http.createServer(this.listen);
+        // Bind 'this' context to listen method to prevent context loss
+        this.server = http.createServer(this.listen.bind(this));
 
         // Add error handler to prevent crashes
         this.server.on('error', (err) => {

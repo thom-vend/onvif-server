@@ -86,6 +86,7 @@ if (args) {
         }
 
         let proxies = {};
+        let proxyServers = [];
         let servers = [];
 
         for (let onvifConfig of config.onvif) {
@@ -116,7 +117,8 @@ if (args) {
         for (let destinationAddress in proxies) {
             for (let sourcePort in proxies[destinationAddress]) {
                 logger.info(`Starting tcp proxy from port ${sourcePort} to ${destinationAddress}:${proxies[destinationAddress][sourcePort]} ...`);
-                tcpProxy.createProxy(sourcePort, destinationAddress, proxies[destinationAddress][sourcePort]);
+                const proxyServer = tcpProxy.createProxy(sourcePort, destinationAddress, proxies[destinationAddress][sourcePort]);
+                proxyServers.push(proxyServer);
                 logger.info('  Started!');
                 logger.info('');
             }
@@ -125,6 +127,16 @@ if (args) {
         // Graceful shutdown on SIGTERM/SIGINT (important for Docker)
         const gracefulShutdown = async (signal) => {
             logger.info(`Received ${signal}, shutting down gracefully...`);
+
+            // Shutdown all TCP proxies
+            logger.info('Closing TCP proxies...');
+            for (const proxy of proxyServers) {
+                try {
+                    proxy.end();
+                } catch (err) {
+                    logger.error('Error closing TCP proxy: ' + err.message);
+                }
+            }
 
             // Shutdown all ONVIF servers
             const shutdownPromises = servers.map(server => server.shutdown());
