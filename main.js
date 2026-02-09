@@ -29,7 +29,6 @@ if (args) {
         logger.info('Version: ' + package.version);
         return;
     }
-
     if (args.create_config) {
         let mutableStdout = new stream.Writable({
             write: function(chunk, encoding, callback) {

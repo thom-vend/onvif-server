@@ -47,7 +47,7 @@ class OnvifServer {
             Framerate: this.config.highQuality.framerate,
             Resolution: { Width: this.config.highQuality.width, Height: this.config.highQuality.height }
         };
-    
+        
         this.profiles = [
             {
                 Name: 'MainStream',
@@ -544,8 +544,8 @@ class OnvifServer {
     }
 };
 
-function createServer(config) {
-    return new OnvifServer(config);
+function createServer(config, logger) {
+    return new OnvifServer(config, logger);
 }
 
 exports.createServer = createServer;
