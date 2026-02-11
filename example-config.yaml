@@ -1,0 +1,29 @@
+onvif:
+  - mac: a2:a2:a2:a2:a2:a1
+    ports:
+      server: 8081
+      rtsp: 8554
+      snapshot: 8580
+    name: Channel1
+    uuid: 15b21259-77d9-441f-9913-3ccd8a82e430
+    highQuality:
+      rtsp: /cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif
+      snapshot: /onvif/snapshot?channel=1&subtype=0
+      width: 2592
+      height: 1944
+      framerate: 12
+      bitrate: 2048
+      quality: 4
+    lowQuality:
+      rtsp: /cam/realmonitor?channel=1&subtype=1&unicast=true&proto=Onvif
+      snapshot: /onvif/snapshot?channel=1&subtype=1
+      width: 352
+      height: 288
+      framerate: 12
+      bitrate: 160
+      quality: 1
+    target:
+      hostname: 192.168.1.152
+      ports:
+        rtsp: 554
+        snapshot: 80

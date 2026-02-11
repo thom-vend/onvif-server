@@ -6,6 +6,7 @@ const uuid = require('node-uuid');
 const url = require('url');
 const fs = require('fs');
 const os = require('os');
+const path = require('path');
 
 Date.prototype.stdTimezoneOffset = function() {
     let jan = new Date(this.getFullYear(), 0, 1);
@@ -381,17 +382,22 @@ class OnvifServer {
 
         this.server.listen(this.config.ports.server, this.config.hostname);
 
+        const deviceWsdlPath = path.resolve(__dirname, '../wsdl/device_service.wsdl');
+        const mediaWsdlPath = path.resolve(__dirname, '../wsdl/media_service.wsdl');
+
         this.deviceService = soap.listen(this.server, {
             path: '/onvif/device_service',
             services: this.onvif,
-            xml: fs.readFileSync('./wsdl/device_service.wsdl', 'utf8'),
+            xml: fs.readFileSync(deviceWsdlPath, 'utf8'),
+            uri: deviceWsdlPath,
             forceSoap12Headers: true
         });
 
         this.mediaService = soap.listen(this.server, {
             path: '/onvif/media_service',
             services: this.onvif,
-            xml: fs.readFileSync('./wsdl/media_service.wsdl', 'utf8'),
+            xml: fs.readFileSync(mediaWsdlPath, 'utf8'),
+            uri: mediaWsdlPath,
             forceSoap12Headers: true
         });
     }

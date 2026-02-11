@@ -8,6 +8,11 @@ const stream = require('stream');
 const yaml = require('yaml');
 const fs = require('fs');
 const simpleLogger = require('simple-node-logger');
+const util = require('util');
+
+if (typeof util.isDate !== 'function') {
+    util.isDate = (value) => value instanceof Date;
+}
 
 const parser = new argparse.ArgumentParser({
     description: 'Virtual Onvif Server'
