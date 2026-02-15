@@ -340,6 +340,18 @@ class OnvifServer {
     }
 
     listen(request, response) {
+        const requestStart = Date.now();
+        const remoteAddress = request.socket && request.socket.remoteAddress ? request.socket.remoteAddress : '-';
+        const requestMethod = request.method || '-';
+        const requestUrl = request.url || '-';
+
+        response.on('finish', () => {
+            const durationMs = Date.now() - requestStart;
+            const statusCode = response.statusCode;
+            const contentLength = response.getHeader('Content-Length') || '-';
+            this.logger.info(`${remoteAddress} "${requestMethod} ${requestUrl}" ${statusCode} ${contentLength} ${durationMs}ms`);
+        });
+
         // Use modern URL API instead of deprecated url.parse
         let pathname;
         try {
